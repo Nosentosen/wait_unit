@@ -1,24 +1,40 @@
 #ifndef WAIT_UNIT_H
 #define WAIT_UNIT_H
 
-// Handles Windows vs Linux/Mac
 #ifdef _WIN32
     #include <windows.h>
-    #define _WAIT_MS(ms) Sleep((unsigned long)(ms))
+
+    static void wait_ms(double ms) {
+        Sleep((DWORD)ms);
+    }
+
 #else
-    #include <unistd.h>
-    #define _WAIT_MS(ms) usleep((unsigned long)((ms) * 1000))
+    #include <time.h>
+
+    static void wait_ms(double ms) {
+        struct timespec ts;
+
+        ts.tv_sec = (time_t)(ms / 1000.0);
+        ts.tv_nsec = (long)((ms - (ts.tv_sec * 1000.0)) * 1000000.0);
+
+        nanosleep(&ts, NULL);
+    }
+
 #endif
 
-// The "Magic" loop trick that makes 'wait_sec 2.5' work in C
-#define _WAIT_LOGIC(factor) \
-    for (int _done = 0; !_done; ) \
-        for (double _val = 0; !_done; _WAIT_MS(_val * factor * 1000.0), _done = 1) \
-            _val = 
+static void wait_sec(double sec) {
+    if (sec > 0)
+        wait_ms(sec * 1000.0);
+}
 
-// These are the only definitions you need
-#define wait_sec _WAIT_LOGIC(1.0)
-#define wait_min _WAIT_LOGIC(60.0)
-#define wait_hr  _WAIT_LOGIC(3600.0)
+static void wait_min(double min) {
+    if (min > 0)
+        wait_sec(min * 60.0);
+}
+
+static void wait_hr(double hr) {
+    if (hr > 0)
+        wait_min(hr * 60.0);
+}
 
 #endif
