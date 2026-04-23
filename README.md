@@ -2,9 +2,9 @@
 
 ## Overview
 
-`wait_unit` is a tiny C header that makes delays look less like math homework and more like intent.
+`wait_unit` is a tiny C header that makes time delays more readable and less annoying to write.
 
-Instead of thinking in milliseconds, you write:
+Instead of thinking in raw milliseconds or low-level sleep calls, you can write:
 
 ```c
 wait_sec(2);
@@ -12,46 +12,42 @@ wait_min(1);
 wait_hr(1);
 ```
 
-And the program just… waits. As expected.
+Same behavior underneath. Just a cleaner way to express it.
 
 ## What it does
 
-It provides three simple delay helpers:
+Provides three delay helpers:
 
 - `wait_sec(seconds)` — seconds (supports decimals)
 - `wait_min(minutes)` — minutes
 - `wait_hr(hours)` — hours
 
-All of them end up doing the same thing: pausing execution for a bit.
-
-Just expressed in a way that reads like human thought instead of system calls.
+All values are converted internally into milliseconds and passed to the system’s native sleep functions.
 
 ## How it works
-
-Under the hood, it uses the platform’s native sleep system:
 
 - 🪟 Windows → `Sleep()`
 - 🐧 Linux / 🍎 macOS → `nanosleep()`
 
-Everything is wrapped in `static` helper functions inside a single header file, so there’s nothing to link or configure.
+Everything is implemented as `static` functions inside a single header file, so no linking or setup is required.
 
 ## Features
 
-- Single header setup 📦  
+- Single-header design 📦  
 - Cross-platform support 🧭  
-- Fractional time support (yes, `wait_sec(2.5)` works)  
-- Minimal and readable API 👀  
-- No dependencies, no setup rituals  
+- Fractional time support (e.g. `wait_sec(2.5)`)  
+- Minimal, readable API 👀  
+- No external dependencies  
 
 ## Installation
 
-Drop the file into your project and include it:
+Just include the header:
 
 ```c
 #include "wait_unit.h"
 ```
 
-That’s the setup.
+That’s it.
 
 ## Example
 
@@ -60,14 +56,14 @@ That’s the setup.
 #include "wait_unit.h"
 
 int main() {
-    printf("Booting...\n");
+    printf("Starting...\n");
 
     wait_sec(2);
     wait_sec(1.5);
 
-    printf("Ready.\n");
+    printf("Running...\n");
 
-    wait_min(0.1); // short break
+    wait_min(0.1);
 
     printf("Done.\n");
 
@@ -77,11 +73,16 @@ int main() {
 
 ## Notes
 
-- This does not bend time (unfortunately)
-- It relies entirely on OS-level sleep functions
-- Precision depends on the system scheduler, not the wrapper
-- It’s meant for simple delays, not real-time systems or high-frequency timing
+- This does not increase timing precision; it wraps native OS sleep functions
+- Accuracy depends on the operating system scheduler
+- Designed for simple delays and readability, not real-time systems
+
+## Project background
+
+- The concept for this project was created by me  
+- The implementation was generated with the help of AI  
+- I am currently learning C using Bro Code’s free C programming course  
 
 ## License
 
-MIT License — use it, change it, break it, improve it.
+MIT License — free to use, modify, and distribute.
